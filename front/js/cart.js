@@ -14,8 +14,6 @@ cart.forEach((item) => displayItem(item))
 //price: 1499
 //quantity: 2
 
-//const orderButton = document.querySelector("#order")
-//orderButton.addEventListener("click", (e) => submitForm(e))
 
 function retrieveItemsFromCache() {
     const numberOfItems = localStorage.length
@@ -32,7 +30,7 @@ function displayItem(item) {
   const article = makeArticle(item)
   const imageDiv = makeImageDiv(item)
   article.appendChild(imageDiv)
-  const cardItemContent = makeCardItemContent(item)
+  const cardItemContent = makeCartItemContent(item)
   article.appendChild(cardItemContent)
   displayArticle(article)
   displayTotalQuantity()
@@ -52,16 +50,16 @@ function displayTotalPrice() {
 }
 
 
-function makeCardItemContent(item) {
-  const cardItemContent = document.createElement("div")
-  cardItemContent.classList.add("cart__item__content")
+function makeCartItemContent(item) {
+  const cartItemContent = document.createElement("div")
+  cartItemContent.classList.add("cart__item__content")
 
   const description = makeDescription(item)
   const settings = makeSettings(item)
 
-  cardItemContent.appendChild(description)
-  cardItemContent.appendChild(settings)
-  return cardItemContent
+  cartItemContent.appendChild(description)
+  cartItemContent.appendChild(settings)
+  return cartItemContent
 }
 
 
