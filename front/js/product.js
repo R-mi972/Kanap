@@ -17,6 +17,9 @@ fetch(`http://localhost:3000/api/products/${id}`)
 function Data(kanap) {
     const { colors, imageUrl, altTxt, name, description, price } = kanap
     productPrice = price
+    imgUrl = imageUrl
+    altText = altTxt
+    articleName = name
     makeImage(imageUrl, altTxt)
     makeTitle(name)
     makePrice(price)
@@ -66,7 +69,7 @@ const button = document.querySelector("#addToCart")
 button.addEventListener("click", handleClick)
 
 
-   function handleClick() {
+function handleClick() {
     const color = document.querySelector("#colors").value
     const quantity = document.querySelector("#quantity").value
     // si la commande est invalide on arrete l'execution de la fonction
@@ -76,11 +79,11 @@ button.addEventListener("click", handleClick)
     }
 
 
-  function redirectToCart() {
+function redirectToCart() {
     window.location.href = "cart.html"
     }
 
-    function saveOrder(color, quantity) {
+function saveOrder(color, quantity) {
         const data = {
             id: id,
             color: color,
@@ -90,12 +93,6 @@ button.addEventListener("click", handleClick)
             altTxt: altText,
             name: articleName,
         }
-
-
-    
-   
-
-
     //local storage ne peux pas stocker des objets il faut les convertir en string
     localStorage.setItem(id, JSON.stringify(data))
     }
