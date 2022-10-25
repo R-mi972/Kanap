@@ -14,16 +14,11 @@ fetch("http://localhost:3000/api/products")
 
 
   function addProducts (kanap) {
-    // appel les donnée du produit
-  //const _id = kanap[0]._id
-  //const imageUrl = kanap[0].imageUrl
-  //const altTxt = kanap[0].altTxt
-  //const name = kanap[0].name
-  //const description = kanap[0].description
+  
 
   //loop sur les produits
   kanap.forEach((product) => {
-  // destructuration
+  // appel les donnée du produit  + destructuration
   const { _id, imageUrl, altTxt, name, description } = product
   //Créer les  elements
   const image = makeImage(imageUrl, altTxt)
@@ -42,9 +37,6 @@ function appendElementsToArticle(article, array) {
   array.forEach((item) => { 
     article.appendChild(item)
   })
-  //article.appendChild(image)
-  //article.appendChild(h3)
-  //article.appendChild(p)
 }
 
  function makeAnchor(id) {
