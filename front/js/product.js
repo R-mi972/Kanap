@@ -1,4 +1,3 @@
-
 //recherche url de l'image apres le ?id=
 const queryString = window.location.search
 const params = new URLSearchParams(queryString)
@@ -6,15 +5,14 @@ const id = params.get("id")
 if (id != null) {
     let productPrice = 0
     let imgUrl, altText, articleName
-    
 }
 
 fetch(`http://localhost:3000/api/products/${id}`)
     .then((response) => response.json())
-    .then((res) => Data(res))
+    .then((res) => handleData(res))
 
     // display le produit
-function Data(kanap) {
+function handleData(kanap) {
     const { colors, imageUrl, altTxt, name, description, price } = kanap
     productPrice = price
     imgUrl = imageUrl
@@ -41,7 +39,7 @@ function makeTitle(name) {
 }
 
 function makePrice(price) {
-    const span = document.querySelector("#price")
+ const span = document.querySelector("#price")
     if (span != null) span.textContent = price
 }
 
@@ -52,9 +50,8 @@ function makeDescription(description) {
 
 function makeColors(colors) {
     const select = document.querySelector("#colors")
-    if (select != null)
+    if (select != null){
     //menu déroulant avec select et option
-    {
         colors.forEach((color) => {
             const option = document.createElement("option")
             option.value = color
@@ -79,11 +76,9 @@ function handleClick() {
     }
 
 
-function redirectToCart() {
-    window.location.href = "cart.html"
-    }
 
 function saveOrder(color, quantity) {
+    const key = `${id}-${color}`
         const data = {
             id: id,
             color: color,
@@ -94,7 +89,7 @@ function saveOrder(color, quantity) {
             name: articleName,
         }
     //local storage ne peux pas stocker des objets il faut les convertir en string
-    localStorage.setItem(id, JSON.stringify(data))
+    localStorage.setItem(key, JSON.stringify(data))
     }
 
     function IsOrderInvalid (color, quantity ) {
@@ -105,7 +100,9 @@ function saveOrder(color, quantity) {
     }
 }
 
-
+function redirectToCart() {
+  window.location.href = "cart.html"
+}
 
 
    

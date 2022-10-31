@@ -1,9 +1,19 @@
 // recupérer les donnéeé du local storage
 
 const cart = []
-console.log(cart)
+
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
+
+
+function retrieveItemsFromCache() {
+  const numberOfItems = localStorage.length
+  for (let i = 0; i < numberOfItems; i++) {
+    const item = localStorage.getItem(localStorage.key(i)) || ""
+    const itemObject = JSON.parse(item)
+    cart.push(itemObject)
+  }
+}
 
 
 //altTxt: "Photo d'un canapé rose, une à deux place"
@@ -12,25 +22,14 @@ cart.forEach((item) => displayItem(item))
 //mageUrl: "http://localhost:3000/images/kanap04.jpeg"
 //name: "Kanap Autonoé"
 //price: 1499
-//quantity: 2
+//quantity: 1
 
-
-function retrieveItemsFromCache() {
-    const numberOfItems = localStorage.length
-  for (let i = 0; i < numberOfItems; i++) {
-    const item = localStorage.getItem(localStorage.key(i))
-    // il faut convertir les données en objet avec parse
-    const itemObject = JSON.parse(item)
-    cart.push(itemObject)
-  }
-    
-}
 
 function displayItem(item) {
   const article = makeArticle(item)
   const imageDiv = makeImageDiv(item)
   article.appendChild(imageDiv)
-  const cardItemContent = makeCartItemContent(item)
+  const cardItemContent = makeCartContent(item)
   article.appendChild(cardItemContent)
   displayArticle(article)
   displayTotalQuantity()
@@ -49,19 +48,17 @@ function displayTotalPrice() {
   totalPrice.textContent = total
 }
 
-
-function makeCartItemContent(item) {
-  const cartItemContent = document.createElement("div")
-  cartItemContent.classList.add("cart__item__content")
+function makeCartContent(item) {
+  const cardItemContent = document.createElement("div")
+  cardItemContent.classList.add("cart__item__content")
 
   const description = makeDescription(item)
   const settings = makeSettings(item)
 
-  cartItemContent.appendChild(description)
-  cartItemContent.appendChild(settings)
-  return cartItemContent
+  cardItemContent.appendChild(description)
+  cardItemContent.appendChild(settings)
+  return cardItemContent
 }
-
 
 function makeSettings(item) {
   const settings = document.createElement("div")
@@ -70,6 +67,35 @@ function makeSettings(item) {
   addQuantityToSettings(settings, item)
   addDeleteToSettings(settings, item)
   return settings
+}
+
+function addDeleteToSettings(settings, item) {
+  const div = document.createElement("div")
+  div.classList.add("cart__item__content__settings__delete")
+  div.addEventListener("click", () => deleteItem(item))
+
+  const p = document.createElement("p")
+  p.textContent = "Supprimer"
+  div.appendChild(p)
+  settings.appendChild(div)
+}
+function deleteItem(item) {
+    //console.log("objet a supprimer", item)
+  const itemToDelete = cart.findIndex(
+    (product) => product.id === item.id && product.color === item.color
+  )
+  cart.splice(itemToDelete, 1)
+  displayTotalPrice()
+  displayTotalQuantity()
+  deleteDataFromCache(item)
+  deleteArticleFromPage(item)
+}
+
+function deleteArticleFromPage(item) {
+  const articleToDelete = document.querySelector(
+    `article[data-id="${item.id}"][data-color="${item.color}"]`
+  )
+  articleToDelete.remove()
 }
 
 function addQuantityToSettings(settings, item) {
@@ -85,26 +111,36 @@ function addQuantityToSettings(settings, item) {
   input.min = "1"
   input.max = "100"
   input.value = item.quantity
+
+  //actualiser le prix et quantité
   input.addEventListener("input", () => updatePriceAndQuantity(item.id, input.value, item))
 
   quantity.appendChild(input)
   settings.appendChild(quantity)
 }
 
-function addDeleteToSettings(settings, item) {
-  const div = document.createElement("div")
-  div.classList.add("cart__item__content__settings__delete")
-  div.addEventListener("click", () => deleteItem(item))
 
-  const p = document.createElement("p")
-  p.textContent = "Supprimer"
-  div.appendChild(p)
-  settings.appendChild(div)
+function updatePriceAndQuantity(id, newValue, item) {
+    //trouver l'item dans id et actualiser la quantité
+  const itemToUpdate = cart.find((item) => item.id === id)
+  itemToUpdate.quantity = Number(newValue)
+  item.quantity = itemToUpdate.quantity
+  displayTotalQuantity()
+  displayTotalPrice()
+  saveNewDataToCache(item)
 }
 
+function deleteDataFromCache(item) {
+  const key = `${item.id}-${item.color}`
+  localStorage.removeItem(key)
+}
 
-
-
+//ecrase les données du local storage
+function saveNewDataToCache(item) {
+  const dataToSave = JSON.stringify(item)
+  const key = `${item.id}-${item.color}`
+  localStorage.setItem(key, dataToSave)
+}
 
 function makeDescription(item) {
   const description = document.createElement("div")
@@ -143,3 +179,85 @@ function makeImageDiv(item) {
   div.appendChild(image)
   return div
 }
+
+function submitForm(e) {
+  e.preventDefault()
+  if (cart.length === 0) {
+    alert("Please select items to buy")
+    return
+  }
+
+//récupérer les données du formulaire
+  if (isFormInvalid()) return
+  if (isEmailInvalid()) return
+
+  const body = makeRequestBody()
+  fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const orderId = data.orderId
+      window.location.href = "/html/confirmation.html" + "?orderId=" + orderId
+    })
+    .catch((err) => console.error(err))
+}
+
+function isEmailInvalid() {
+  const email = document.querySelector("#email").value
+  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
+  if (regex.test(email) === false) {
+    alert("Please enter valid email")
+    return true
+  }
+  return false
+}
+
+function isFormInvalid() {
+  const form = document.querySelector(".cart__order__form")
+  const inputs = form.querySelectorAll("input")
+  inputs.forEach((input) => {
+    if (input.value === "") {
+      alert("Please fill all the fields")
+      return true
+    }
+    return false
+  })
+}
+
+function makeRequestBody() {
+  const form = document.querySelector(".cart__order__form")
+  const firstName = form.elements.firstName.value
+  const lastName = form.elements.lastName.value
+  const address = form.elements.address.value
+  const city = form.elements.city.value
+  const email = form.elements.email.value
+  const body = {
+    contact: {
+      firstName: firstName,
+      lastName: lastName,
+      address: address,
+      city: city,
+      email: email
+    },
+    products: getIdsFromCache()
+  }
+  
+  return body
+}
+
+function getIdsFromCache() {
+  const numberOfProducts = localStorage.length
+  const ids = []
+  for (let i = 0; i < numberOfProducts; i++) {
+    const key = localStorage.key(i)
+    const id = key.split("-")[0]
+    ids.push(id)
+  }
+  return ids
+}
+

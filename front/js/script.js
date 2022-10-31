@@ -21,7 +21,7 @@ fetch("http://localhost:3000/api/products")
   // appel les donnée du produit  + destructuration
   const { _id, imageUrl, altTxt, name, description } = product
   //Créer les  elements
-  const image = makeImage(imageUrl, altTxt)
+  const image = makeImageDiv(imageUrl, altTxt)
   const anchor = makeAnchor(_id)
   const article = document.createElement("article")
   const h3 = makeH3(name)
@@ -56,7 +56,7 @@ function appendElementsToArticle(article, array) {
 }
 
 
-function makeImage(imageUrl, altTxt) {
+function makeImageDiv(imageUrl, altTxt) {
   const image = document.createElement("img")
   image.src = imageUrl
   image.alt = altTxt
