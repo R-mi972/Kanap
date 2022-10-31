@@ -181,18 +181,19 @@ function makeImageDiv(item) {
 }
 
 function submitForm(e) {
+    // n'efface pas le panier après click sur le bouton
   e.preventDefault()
   if (cart.length === 0) {
-    alert("Please select items to buy")
+    alert("Votre panier est vide")
     return
   }
 
-//récupérer les données du formulaire
+
   if (isFormInvalid()) return
   if (isEmailInvalid()) return
 
   const body = makeRequestBody()
-  fetch("http://localhost:3000/api/products/order", {
+  fetch("http://localhost:3000/api/product/order", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
@@ -211,7 +212,7 @@ function isEmailInvalid() {
   const email = document.querySelector("#email").value
   const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
   if (regex.test(email) === false) {
-    alert("Please enter valid email")
+    alert("veuillez entrer une adresse email valide")
     return true
   }
   return false
@@ -222,7 +223,7 @@ function isFormInvalid() {
   const inputs = form.querySelectorAll("input")
   inputs.forEach((input) => {
     if (input.value === "") {
-      alert("Please fill all the fields")
+      alert("Veuillez remplir tous les champs")
       return true
     }
     return false
