@@ -5,6 +5,9 @@ const cart = []
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
 
+const orderButton = document.querySelector("#order")
+orderButton.addEventListener("click", (e) => submitForm(e))
+
 
 function retrieveItemsFromCache() {
   const numberOfItems = localStorage.length
@@ -193,7 +196,7 @@ function submitForm(e) {
   if (isEmailInvalid()) return
 
   const body = makeRequestBody()
-  fetch("http://localhost:3000/api/product/order", {
+  fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
@@ -203,7 +206,7 @@ function submitForm(e) {
     .then((res) => res.json())
     .then((data) => {
       const orderId = data.orderId
-      window.location.href = "/html/confirmation.html" + "?orderId=" + orderId
+      window.location.href = "../html/confirmation.html" + "?orderId=" + orderId
     })
     .catch((err) => console.error(err))
 }
